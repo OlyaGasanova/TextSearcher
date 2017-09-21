@@ -5,10 +5,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import Hey.GuiTest;
 import Hey.Settings;
+import Hey.FileNavigator;
+import static Hey.MyControl.fireChangeDirectory;
+import static Hey.MyControl.fireGetData;
+import static Hey.MyControl.fireWrong;
 
 import static Hey.MyControl.fireListeners;
 
@@ -26,9 +31,21 @@ class SearchButton extends MouseAdapter {
     @Override
     public void mouseClicked(MouseEvent e) {
         // super.mouseClicked(e);
-        System.out.println("привет из другого класса");
-        JButton mynew = (JButton) e.getSource();
-        System.out.println(mynew.getText());
+        fireGetData();
+        //JButton mynew = (JButton) e.getSource();
+        try {
+            System.out.println("Такие дела "+Settings.directory);
+            File f = new File(Settings.directory);
+            if(!f.isDirectory())
+            {System.out.println("mistaaaaaaaake!");
+            fireWrong();
+            return;
+            }
+            fireListeners(Settings.directory);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        //System.out.println(mynew.getText());
     }
 }
 class PressButton extends MouseAdapter {
@@ -40,6 +57,58 @@ class PressButton extends MouseAdapter {
             Settings.extension=item;
         }
     }
+
+class Next extends MouseAdapter {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+            Settings.currentFile.next=true;
+            Thread t = new Thread(Settings.currentFile,"new");
+            String message="From FileTreeListener";
+            //this.exchanger=Settings.exchanger.ex;
+            t.start();
+            //Settings.currentFile.NextPenetration();
+
+    }
+}
+
+class Previous extends MouseAdapter {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        Settings.currentFile.next=false;
+        Thread t = new Thread(Settings.currentFile,"new");
+        String message="From FileTreeListener";
+        //this.exchanger=Settings.exchanger.ex;
+        t.start();
+        //Settings.currentFile.NextPenetration();
+
+    }
+}
+
+class NextPage extends MouseAdapter {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        Settings.currentFile.nextpage=true;
+        Thread t = new Thread(Settings.currentFile,"new");
+        System.out.println("nextpage");
+        //this.exchanger=Settings.exchanger.ex;
+        t.start();
+        //Settings.currentFile.NextPenetration();
+
+    }
+}
+class PreviousPage extends MouseAdapter {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        Settings.currentFile.previouspage=true;
+        Thread t = new Thread(Settings.currentFile,"new");
+        System.out.println("previous page");
+        //this.exchanger=Settings.exchanger.ex;
+        t.start();
+        //Settings.currentFile.NextPenetration();
+
+    }
+}
+
 
 class ChooserButton implements ActionListener {
     @Override
@@ -80,11 +149,12 @@ class ChooserButton implements ActionListener {
             String newstring =  chooser.getSelectedFile().toString();
            // newstring.replaceAll("\\\\","/");
             Settings.directory=newstring;
-            try {
-                fireListeners(newstring);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+           fireChangeDirectory();
+            // try {
+           //     fireListeners(newstring);
+           // } catch (IOException e1) {
+            //    e1.printStackTrace();
+           // }
         }
         else {
             System.out.println("No Selection ");

@@ -45,7 +45,7 @@ public class MyJFileChooser extends JPanel
     }
 
     public Dimension getPreferredSize(){
-        return new Dimension(200, 200);
+        return new Dimension(200, 400);
     }
 
     public static void main(String s[]) {

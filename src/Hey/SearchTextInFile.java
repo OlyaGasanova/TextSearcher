@@ -182,6 +182,7 @@ public class SearchTextInFile implements Runnable
 
     @Override
     public void run() {
+        System.out.println("Новый поток искателявфайле");
         try {
 
             message=searchUsingBufferedReader(currentpath,currentquery);

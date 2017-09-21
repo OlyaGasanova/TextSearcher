@@ -19,6 +19,7 @@ import Hey.SearchTextInFile;
 import java.util.concurrent.Exchanger;
 import Hey.MyExchanger;
 import Hey.FileNavigator;
+import static Hey.MyControl.fireEndLoading;
 
 public class FileTree extends JPanel  {
     JTree tree;
@@ -27,6 +28,7 @@ public class FileTree extends JPanel  {
     Exchanger<String> exchanger = new Exchanger();
 
     public FileTree(String myPath) throws IOException {
+        System.out.println("строим в "+ myPath+ " "+Settings.directory);
         root = new DefaultMutableTreeNode("root", true);
         getList(root, new File(Settings.directory));
         setLayout(new BorderLayout());
@@ -41,11 +43,25 @@ public class FileTree extends JPanel  {
                 System.out.println(tree.getSelectionPath().getLastPathComponent());
                 if (tree.getSelectionPath().getLastPathComponent().toString().endsWith("txt")) {
                     System.out.println("Приветики");
-                    try {
-                        FileNavigator.searchUsingBufferedReader(tree.getSelectionPath().getLastPathComponent().toString(), Settings.request);
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
+                  //  try {
+                        FileNavigator current = new FileNavigator();
+                        current.currentpath=tree.getSelectionPath().getLastPathComponent().toString();
+                        Settings.currentFile = current;
+
+                        Thread t = new Thread(Settings.currentFile,"new");
+                        String message="From FileTreeListener";
+                        //this.exchanger=Settings.exchanger.ex;
+                        t.start();
+    //                    try{
+//                            message=exchanger.exchange(message);
+  //                          System.out.println("FileTreeListener получил: " + message);
+   //                     } catch (InterruptedException e) {
+   //                         e.printStackTrace();
+    //                    }
+                     //   current.searchUsingBufferedReader(tree.getSelectionPath().getLastPathComponent().toString(), Settings.request);
+                // } catch (IOException e1) {
+                  //      e1.printStackTrace();
+                 //   }
                 }
             }
         });
@@ -99,7 +115,7 @@ public class FileTree extends JPanel  {
     }
 
     public Dimension getPreferredSize(){
-        return new Dimension(200, 120);
+        return new Dimension(200, 400);
     }
 
     public void getList(DefaultMutableTreeNode node, File f) throws IOException {
@@ -110,12 +126,14 @@ public class FileTree extends JPanel  {
                 //System.out.println(f.getAbsolutePath());
                 DefaultMutableTreeNode child = new DefaultMutableTreeNode(f);
                 SearchTextInFile Searcher = new SearchTextInFile();
+               // MyExchanger ex = new MyExchanger();
+                Settings.exchanger = new MyExchanger();
                 Searcher.currentpath=f.getAbsolutePath();
                 Searcher.currentquery=Settings.request;
-                Searcher.exchanger=MyExchanger.ex;
+                Searcher.exchanger=Settings.exchanger.ex;
                 Thread t = new Thread(Searcher,"new");
                 String message="From FileTree";
-                this.exchanger=MyExchanger.ex;
+                this.exchanger=Settings.exchanger.ex;
                 t.start();
                 try{
                     message=exchanger.exchange(message);
@@ -129,15 +147,16 @@ public class FileTree extends JPanel  {
         }
         else {
             //System.out.println("DIRECTORY  -  " + f.getName());
+            if (f.listFiles()!=null){
             DefaultMutableTreeNode child = new DefaultMutableTreeNode(f);
             node.add(child);
             File fList[] = f.listFiles();
-            for(int i = 0; i  < fList.length; i++)
+            for (int i = 0; i < fList.length; i++)
                 getList(child, fList[i]);
-            Enumeration v =child.depthFirstEnumeration();
+            Enumeration v = child.depthFirstEnumeration();
             boolean flag = false;
             while (v.hasMoreElements()) {
-                String temp = v.nextElement().toString() ;
+                String temp = v.nextElement().toString();
                 //System.out.println(temp);
                 if (temp.endsWith("txt")) {
 
@@ -146,7 +165,8 @@ public class FileTree extends JPanel  {
                 }
 
             }
-            if (flag==false) node.remove(child);
+            if (flag == false) node.remove(child);
+        }
         }
     }
 
@@ -168,17 +188,30 @@ class WindowCloser extends WindowAdapter {
     }
 }
 
-class MyJFrame extends JFrame {
+class MyJFrame extends JFrame implements Runnable{
     JButton b1, b2, b3;
     FileTree panel;
+    public String path;
     MyJFrame(String s) throws IOException {
-        //super(s);
-        panel = new FileTree(s);
+        path=s;
     }
+
     public JPanel giveme(String s){
 
         //MyJFrame(s);
         return panel;
     }
 
+    @Override
+    public void run() {
+        try {
+            System.out.println("продолжение в ран");
+            panel = new FileTree(path);
+            System.out.println("конец загрузки");
+            fireEndLoading();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

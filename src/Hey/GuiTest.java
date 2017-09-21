@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.ArrayList;
+
 import Hey.SearchTextInFile;
 
 
@@ -17,17 +19,18 @@ public class GuiTest extends JFrame implements MyControlListener{
     MyJFrame mytree = new MyJFrame(Settings.directory);
     private JButton chooserbutton = new JButton("Press");
     private JButton restartButton = new JButton("Restart");
-    private JTextField inputpath = new JTextField("input path", 20);
-    private JTextField inputtext = new JTextField("input text", 20);
-    private JTextArea testtest = new JTextArea("ghghghghg");
-    private JLabel labelpath = new JLabel("Input Path:");
-    private JLabel labeltext = new JLabel("Input Text:");
+    private JTextField inputpath = new JTextField("H:\\Depeche Mode", 20);
+    private JTextField inputtext = new JTextField("yandex", 20);
+    private JEditorPane testtest = new JEditorPane("text/html", "");
+    private JLabel labelpath = new JLabel("H:\\Depeche Mode");
+    private JLabel labeltext = new JLabel("yandex");
     private JButton search = new JButton("Search!");
     private JButton test = new JButton("ChooseDir");
+    private JPanel last = new JPanel();
     DefaultMutableTreeNode root = new DefaultMutableTreeNode("root", true);
     public JTree Mytree = new JTree(root);
     private JPanel foldertree = new JPanel();
-    public JPanel boxThird = mytree.giveme("H:/JavaProjTest");
+    public JPanel boxThird= new JPanel();// = mytree.giveme("H:/JavaProjTest");
     Box another = new Box(BoxLayout.X_AXIS);
     Container container = this.getContentPane();
 
@@ -47,7 +50,7 @@ public class GuiTest extends JFrame implements MyControlListener{
     public GuiTest() throws IOException {
 
         super("Find what you want"); //Заголовок окна
-        setBounds(100, 100, 400, 800); //Если не выставить
+        setBounds(100, 100, 500, 600); //Если не выставить
         //размер и положение
         //то окно будет мелкое и незаметное
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //это нужно для того чтобы при
@@ -104,20 +107,28 @@ public class GuiTest extends JFrame implements MyControlListener{
         boxSecond.add(Box.createVerticalStrut(40));
 
         JButton aza = new JButton(">");
+        aza.addMouseListener(new Next());
         aza.setMaximumSize(new Dimension(30,30));
         JButton azaza = new JButton("<");
+        JButton azazareverse = new JButton("<<");
+        azaza.addMouseListener(new Previous());
+        azazareverse.addMouseListener(new PreviousPage());
+        JButton azazaza = new JButton(">>");
+        azazaza.addMouseListener(new NextPage());
         azaza.setMaximumSize(new Dimension(30,30));
-        JPanel last = new JPanel();
+
         last.setLayout(new BorderLayout());
         Box buttonsbox = new Box(BoxLayout.X_AXIS);
         buttonsbox.add(Box.createHorizontalGlue());
+        buttonsbox.add(azazareverse);
         buttonsbox.add(azaza);
-        buttonsbox.add(Box.createHorizontalStrut(15));buttonsbox.add(aza);
+        buttonsbox.add(Box.createHorizontalStrut(15));buttonsbox.add(aza);buttonsbox.add(azazaza);
         buttonsbox.add(Box.createHorizontalGlue());
         buttonsbox.setBorder(new EmptyBorder(10,10,10,10));
         testtest.setMinimumSize(new Dimension(200,200));
         last.add(buttonsbox, BorderLayout.NORTH);
-        last.add(testtest, BorderLayout.CENTER);
+        last.add(new JScrollPane(testtest),"Center");
+        //last.add(testtest, BorderLayout.CENTER);
         last.setBorder(new EmptyBorder(10,10,10,10));
 
 
@@ -155,7 +166,7 @@ public class GuiTest extends JFrame implements MyControlListener{
         boxZeroLevel.add(boxSecond);
         boxZeroLevel.add(another);
         container.add(boxZeroLevel);
-        pack();
+        //pack();
     }
 
 
@@ -170,12 +181,13 @@ public class GuiTest extends JFrame implements MyControlListener{
 
         //String s[]={""};
         //mytree.hello();
-        GuiTest app = new GuiTest();
+       GuiTest app = new GuiTest();
         //app.addListener(new MyController());
         //Создаем экземпляр нашего приложения
-        app.setVisible(true);
+       app.setVisible(true);
+       // setContentPane(rootPanel);
         MyControl ctl = new MyControl();
-        ctl.addListener(app);
+       ctl.addListener(app);
         System.out.println("Hello World!");
     }
 
@@ -185,25 +197,81 @@ public class GuiTest extends JFrame implements MyControlListener{
     @Override
     public void onDataChanged(String path) throws IOException {
         System.out.println("Hello Stupid World!");
-        MyJFrame mytree1 = new MyJFrame(path);
-       // another.remove(boxThird);
-        //boxThird = mytree1.giveme("1");
-
+        Settings.mytree1 = new MyJFrame(path);
         //another.remove(boxThird);
-        boxThird.remove(boxThird.getComponent(0));
-        boxThird.setBorder(new TitledBorder("Folder Path"));
-        boxThird.add(mytree1.giveme("H:/Depeche Mode"));
-        //another.add(boxThird, 0);
-        boxThird.revalidate();
-        boxThird.repaint();
+        //boxThird = mytree1.giveme("1");
+        Thread t =new Thread(Settings.mytree1, "tree");
+        t.start();
+        System.out.println("начало в ондатачейндж");
+       /* try {
+            t.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
+        //another.remove(boxThird);
 
-        System.out.println("Hello Stupid World!");
 
 
     }
 
 
+
+    @Override
+    public void textChanged(String text) {
+
+        testtest.setText("");
+        //testtest.removeAll();
+        //for (String line:text) {testtest.setText(line);
+       // }
+        testtest.setText(text);
+        System.out.println("Hello Stupid World!"+text);
+        last.revalidate();
+        last.repaint();
+
+
+    }
+
+    @Override
+    public void EndOfFile() {
+        JOptionPane.showMessageDialog(this,"End of File" );
+    }
+
+    @Override
+    public void EndLoading() {
+        boxThird.removeAll();
+        boxThird.setBorder(new TitledBorder("Folder Path"));
+        boxThird.add(Settings.mytree1.giveme("H:/Depeche Mode"));
+        boxThird.setSize(200,400);
+        another.add(boxThird, 0);
+        boxThird.revalidate();
+        boxThird.repaint();
+
+        System.out.println("Hello Stupid World!");
+    }
+
+    @Override
+    public void ChangeDirectory() {
+        inputpath.setText(Settings.directory);
+    }
+
+    @Override
+    public void ChangeQuery() {
+        inputtext.setText(Settings.request);
+    }
+
+    @Override
+    public void GetData() {
+        Settings.directory=inputpath.getText();
+        Settings.request=inputtext.getText();
+    }
+
+    @Override
+    public void Wrong() {
+        JOptionPane.showMessageDialog(this,"No such Directory!" );
+    }
+
 }
+
 
 
 
