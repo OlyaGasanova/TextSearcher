@@ -224,7 +224,7 @@ public class GuiTest extends JFrame implements MyControlListener{
         //for (String line:text) {testtest.setText(line);
        // }
         testtest.setText(text);
-        System.out.println("Hello Stupid World!"+text);
+       // System.out.println("Hello Stupid World!"+text);
         last.revalidate();
         last.repaint();
 
