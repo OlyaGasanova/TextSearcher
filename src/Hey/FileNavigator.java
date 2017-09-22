@@ -123,14 +123,9 @@ public class FileNavigator implements Runnable{
 
     public String PreviousPage()throws IOException{
 
-        if (currentpage==(int)pages.get(1)) {
-            fireEndofFile();
-            return null;
-        }
 
-        currentpage=(int)pages.get(pages.size()-3);
-        currentposition=currentpage;
-        pages.remove(pages.size()-1);
+
+
 
         String searchQuery = Settings.request;
         br=null;
@@ -138,12 +133,23 @@ public class FileNavigator implements Runnable{
         myText=new ArrayList<String>();
 
         char[] cbuf=new char[1];
+        boolean somethingread=false;
 
         String line="";
         System.out.println(pages.toString()+" "+currentpage);
         System.out.println("Предыдущая страница");
 
         try {
+            if (currentpage==(int)pages.get(1)) {
+                fireEndofFile();
+                return null;
+            }
+
+            currentpage=(int)pages.get(pages.size()-3);
+            currentposition=currentpage;
+            pages.remove(pages.size()-1);
+
+
             br = new BufferedReader(new InputStreamReader(new FileInputStream(currentpath)));
             br.skip(currentpage);
             while ((br.read(cbuf,0,1))!=-1)
@@ -151,7 +157,7 @@ public class FileNavigator implements Runnable{
                 newpage++;
                 line=line+cbuf[0];
                 currentposition++;
-
+                somethingread=true;
 
                 if (cbuf[0]=='\n') {
 
@@ -170,17 +176,22 @@ public class FileNavigator implements Runnable{
             }
 
         }
+        catch (IndexOutOfBoundsException e){
+            fireEndofFile();
+        }
         finally {
 
-            line+="<br>";
-            myText.add(line);
-            for (String part:myText
-                    ) { Hello+=part;
+           if (somethingread) {
+               line += "<br>";
+               myText.add(line);
+               for (String part : myText
+                       ) {
+                   Hello += part;
 
-            }
-            currentpage=currentposition;
-            fireFirstTextAdded(Hello);
-
+               }
+               currentpage = currentposition;
+               fireFirstTextAdded(Hello);
+           }
 
 
             try
@@ -312,10 +323,12 @@ public class FileNavigator implements Runnable{
         boolean somethingFind=false;
         try {
             System.out.println(currentpenetration);
-            currentpenetration = (int) positionmatches.get(positionmatches.indexOf(currentpenetration) - 2);
+            if (positionmatches.indexOf(currentpenetration)==1) currentpenetration=0;
+            else currentpenetration = (int) positionmatches.get(positionmatches.indexOf(currentpenetration) - 2);
             System.out.println(currentpenetration);
             NextPenetration();
         }
+        catch (IndexOutOfBoundsException e) {fireEndofFile();}
         finally {
 
         }
