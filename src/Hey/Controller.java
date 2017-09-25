@@ -1,6 +1,8 @@
 package Hey;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -106,6 +108,20 @@ class PreviousPage extends MouseAdapter {
 
     }
 }
+
+
+class changedTab implements ChangeListener{
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            JTabbedPane source =(JTabbedPane) e.getSource();
+            Settings.currentTab=source.getSelectedIndex();
+            Settings.currentFile=Settings.Navigators.get(source.getSelectedIndex());
+
+            System.out.println(source.getSelectedIndex()+"Изменилась вкладка");
+            //System.out.println(Settings.Navigators.size()+" навигаторов всего,"+tabbedPane.getSelectedIndex() +"пытаемся получить");
+        }
+    }
+
 
 
 class ChooserButton implements ActionListener {

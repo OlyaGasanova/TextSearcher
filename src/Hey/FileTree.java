@@ -46,14 +46,10 @@ public class FileTree extends JPanel  {
                 System.out.println(tree.getSelectionPath().getLastPathComponent());
                 if (tree.getSelectionPath().getLastPathComponent().toString().endsWith("txt")) {
                     System.out.println("Приветики");
-                        FileNavigator current = new FileNavigator();
-                        current.currentpath=tree.getSelectionPath().getLastPathComponent().toString();
-                        Settings.currentFile = current;
+                        Settings.temppath = tree.getSelectionPath().getLastPathComponent().toString();
                         fireaddTab(tree.getSelectionPath().getLastPathComponent().toString());
-                        Thread t = new Thread(Settings.currentFile,"new");
                         String message="From FileTreeListener";
                         //this.exchanger=Settings.exchanger.ex;
-                        t.start();
                 }
             }
         });

@@ -8,10 +8,13 @@ import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import Hey.Settings;
 
 import Hey.SearchTextInFile;
 
@@ -136,14 +139,19 @@ public class GuiTest extends JFrame implements MyControlListener{
         last.add(new JScrollPane((JEditorPane)testtest),"Center");
 
         last.add(tabbedPane);
-
-        tabbedPane.addChangeListener(new ChangeListener() {
+        tabbedPane.addMouseListener(new MouseAdapter() {
             @Override
-            public void stateChanged(ChangeEvent e) {
-                System.out.println(tabbedPane.getSelectedIndex()+"Изменилась вкладка");
+            public void mouseClicked(MouseEvent e) {
+               // super.mouseClicked(e);
+               System.out.println( tabbedPane.getSelectedIndex());
                 Settings.currentTab=tabbedPane.getSelectedIndex();
+                Settings.currentFile=Settings.Navigators.get(tabbedPane.getSelectedIndex());
+
+
             }
         });
+
+        tabbedPane.addChangeListener(new changedTab());
 
         //last.add(testtest, BorderLayout.CENTER);
         last.setBorder(new EmptyBorder(10,10,10,10));
@@ -242,9 +250,10 @@ public class GuiTest extends JFrame implements MyControlListener{
         //for (String line:text) {testtest.setText(line);
        // }
 
+        //tabbedPane.getSelectedComponent()
         testtest.setText(text);
        // System.out.println("Hello Stupid World!"+text);
-
+        Settings.Editors.get(Settings.currentTab).setText(text);
         last.revalidate();
         last.repaint();
        // last.setMinimumSize(new Dimension(400,600));
@@ -298,7 +307,24 @@ public class GuiTest extends JFrame implements MyControlListener{
     public void addTab(String name) {
         int count=0;
         boolean alreadyhas=false;
-        if (tabbedPane.getTabCount()==0) tabbedPane.addTab(name,new JScrollPane((new JEditorPane())));
+        if (tabbedPane.getTabCount()==0) {
+
+            JEditorPane currentEditor = new JEditorPane("text/html","");
+
+            Settings.currentTab=0;
+            System.out.println(Settings.currentTab+" Добавлена вкладка. Это при каунт==0" );
+            FileNavigator current = new FileNavigator();
+            current.currentpath=Settings.temppath;
+            Settings.currentFile = current;
+            Settings.Navigators.add(current);
+            Settings.Editors.add(currentEditor);
+            Settings.currentTab=count;
+            tabbedPane.addTab(name,new JScrollPane((currentEditor)));
+            Thread t = new Thread(Settings.currentFile,"new");
+            t.start();
+            count++;
+            alreadyhas=true;
+        }
         while (count<tabbedPane.getTabCount()) {
             if (tabbedPane.getTitleAt(count)==name) {
             alreadyhas=true;
@@ -307,8 +333,20 @@ public class GuiTest extends JFrame implements MyControlListener{
         count++;
         }
         if (!alreadyhas) {
-            tabbedPane.addTab(name,new JScrollPane((new JEditorPane())));
-            
+            JEditorPane currentEditor = new JEditorPane("text/html","");
+            Settings.Editors.add(currentEditor);
+            FileNavigator current = new FileNavigator();
+            current.currentpath=Settings.temppath;
+            Settings.currentFile = current;
+            Settings.Navigators.add(current);
+            System.out.println("Добавляем навигатор № "+Settings.Navigators.size());
+            Settings.currentTab=count;
+            System.out.println(Settings.currentTab+" Добавлена вкладка. Это при каунт=="+count );
+            tabbedPane.addTab(name,new JScrollPane((currentEditor)));
+            Thread t = new Thread(Settings.currentFile,"new");
+            t.start();
+            System.out.println("Навигаторов у нас "+Settings.Navigators.size());
+
         }
         tabbedPane.revalidate();
         tabbedPane.repaint();

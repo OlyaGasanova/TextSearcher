@@ -18,7 +18,9 @@ public class Settings {
     static FileNavigator currentFile;
     static String request ="yandex";
     static int currentTab;
+    static String temppath;
     static ArrayList<FileNavigator> Navigators = new ArrayList<FileNavigator>();
+    static ArrayList<JEditorPane> Editors = new ArrayList<JEditorPane>();
     static String directory = Paths.get("").toAbsolutePath().toString();
 
 }

@@ -45,7 +45,7 @@ public class FileNavigator implements Runnable{
        String line="";
 
        newpage=0;
-       System.out.println("Read function "+currentposition);
+
 
 
 
@@ -63,13 +63,11 @@ public class FileNavigator implements Runnable{
                {
                    if (!positionmatches.contains(currentposition)){
                        positionmatches.add(currentposition);
-                       System.out.println(currentposition+" "+cbuf+" "+line+" "+findmatch);
                    }
                    if((mode=="find")&&(currentposition>currentpenetration)&&(!findmatch)) {
                        line = line.replaceAll(searchQuery, "<b>"+searchQuery+"</b>");
                        currentpenetration=currentposition;
                        findmatch=true;
-                       System.out.println(line);
                    }
                    if (firsttime) findmatch=true;
                    myText.add(line);
@@ -93,7 +91,6 @@ public class FileNavigator implements Runnable{
                        //        ) { Hello+=part;
 
                        //}
-                       System.out.println(currentposition);
                        if (((mode=="find")&&findmatch)||((mode=="first")&&(firsttime)&&(findmatch))||(mode=="another")) break;
                        else myText.clear();
                    }
@@ -143,18 +140,15 @@ public class FileNavigator implements Runnable{
 
     public String PreviousPage()throws IOException{
 
-       System.out.println("Сечас на "+currentpage);
         if (pages.indexOf(currentpage)>1)
         {
 
             currentpage=(int)pages.get(pages.indexOf(currentpage)-2);
             currentposition=currentpage;
-            System.out.println("Перешли на "+currentpage);
             String result = Read(currentpage, "another");
             fireFirstTextAdded(result);
         }
         else fireEndofFile();
-        System.out.println(pages);
         return null;
 
 
@@ -193,7 +187,6 @@ public class FileNavigator implements Runnable{
             }
         }
         fireFirstTextAdded(result);
-        System.out.println(positionmatches);
         return null;
 
     }
@@ -231,21 +224,18 @@ public class FileNavigator implements Runnable{
         }
         currentposition=0;
         currentpage=0;
-        System.out.println(firsttime);
         result = Read(currentposition, "another");
         fireFirstTextAdded(result);
         currentpenetration=0;
-        System.out.println(positionmatches);
         return null;
     }
 
     @Override
     public void run() {
-        System.out.println("Новый поток навигатора");
         try {
-        if (previouspage) {PreviousPage(); previouspage=false;System.out.println("previous page");}
+        if (previouspage) {PreviousPage(); previouspage=false;}
         else
-        if (nextpage){ NextPage();nextpage=false;System.out.println("nextpage");}
+        if (nextpage){ NextPage();nextpage=false;}
              else{
                 if (firsttime) {
                     searchUsingBufferedReader(this.currentpath, Settings.request);
