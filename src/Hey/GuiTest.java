@@ -3,6 +3,8 @@ package Hey;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -19,7 +21,7 @@ public class GuiTest extends JFrame implements MyControlListener{
     MyJFrame mytree = new MyJFrame(Settings.directory);
     private JButton chooserbutton = new JButton("Press");
     private JButton restartButton = new JButton("Restart");
-    private JTextField inputpath = new JTextField("H:\\Depeche Mode", 20);
+    private JTextField inputpath = new JTextField("H:\\Depeche mode", 20);
     private JTextField inputtext = new JTextField("yandex", 20);
     private JEditorPane testtest = new JEditorPane("text/html", "");
     private JLabel labelpath = new JLabel("H:\\Depeche Mode");
@@ -27,6 +29,8 @@ public class GuiTest extends JFrame implements MyControlListener{
     private JButton search = new JButton("Search!");
     private JButton test = new JButton("ChooseDir");
     private JPanel last = new JPanel();
+    public JTabbedPane tabbedPane = new JTabbedPane();
+
     DefaultMutableTreeNode root = new DefaultMutableTreeNode("root", true);
     public JTree Mytree = new JTree(root);
     private JPanel foldertree = new JPanel();
@@ -50,11 +54,10 @@ public class GuiTest extends JFrame implements MyControlListener{
     public GuiTest() throws IOException {
 
         super("Find what you want"); //Заголовок окна
-        setBounds(100, 100, 500, 600); //Если не выставить
+        setBounds(100, 100, 700, 600); //Если не выставить
         //размер и положение
         //то окно будет мелкое и незаметное
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //это нужно для того чтобы при
-
         //Container container = this.getContentPane();
         Box boxZeroLevel = new Box(BoxLayout.Y_AXIS);
         //container.addLi
@@ -125,13 +128,27 @@ public class GuiTest extends JFrame implements MyControlListener{
         buttonsbox.add(Box.createHorizontalStrut(15));buttonsbox.add(aza);buttonsbox.add(azazaza);
         buttonsbox.add(Box.createHorizontalGlue());
         buttonsbox.setBorder(new EmptyBorder(10,10,10,10));
-        testtest.setMinimumSize(new Dimension(200,200));
+        testtest.setMinimumSize(new Dimension(600,200));
+        testtest.setMaximumSize(new Dimension(600,200));
+        last.setSize(new Dimension(600,container.getHeight()));
+        //last.setSize(new Dimension(600,container.getHeight()));
         last.add(buttonsbox, BorderLayout.NORTH);
-        last.add(new JScrollPane(testtest),"Center");
+        last.add(new JScrollPane((JEditorPane)testtest),"Center");
+
+        last.add(tabbedPane);
+
+        tabbedPane.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                System.out.println(tabbedPane.getSelectedIndex()+"Изменилась вкладка");
+                Settings.currentTab=tabbedPane.getSelectedIndex();
+            }
+        });
+
         //last.add(testtest, BorderLayout.CENTER);
         last.setBorder(new EmptyBorder(10,10,10,10));
 
-
+        //tabbedPane.add(new JScrollPane((JEditorPane)testtest));
         //foldertree.setLayout(new Box(BoxLayout.X_AXIS));
         foldertree.setBackground(Color.white);
         foldertree.setBorder(new TitledBorder("Folder Tree"));
@@ -155,11 +172,12 @@ public class GuiTest extends JFrame implements MyControlListener{
         //boxThird.setBackground(Color.white);
         //boxThird.add(Mytree, BorderLayout.PAGE_START);
         boxThird.setMaximumSize(new Dimension(200, 1000));
-
-
+        testtest.setPreferredSize(new Dimension(400,10));
+        boxThird.setPreferredSize(new Dimension(200,10));
 
         another.add(boxThird);
         another.add(Box.createHorizontalStrut(15));
+        another.add(Box.createHorizontalGlue());
         another.add(last);
 
         boxZeroLevel.add(boxFirst);
@@ -223,11 +241,17 @@ public class GuiTest extends JFrame implements MyControlListener{
         //testtest.removeAll();
         //for (String line:text) {testtest.setText(line);
        // }
+
         testtest.setText(text);
        // System.out.println("Hello Stupid World!"+text);
+
         last.revalidate();
         last.repaint();
-
+       // last.setMinimumSize(new Dimension(400,600));
+        //last.setMaximumSize(new Dimension(400,600));
+       // last.setSize(400,600);
+        last.revalidate();
+        last.repaint();
 
     }
 
@@ -241,7 +265,7 @@ public class GuiTest extends JFrame implements MyControlListener{
         boxThird.removeAll();
         boxThird.setBorder(new TitledBorder("Folder Path"));
         boxThird.add(Settings.mytree1.giveme("H:/Depeche Mode"));
-        boxThird.setSize(200,400);
+        //boxThird.setSize(300,400);
         another.add(boxThird, 0);
         boxThird.revalidate();
         boxThird.repaint();
@@ -268,6 +292,28 @@ public class GuiTest extends JFrame implements MyControlListener{
     @Override
     public void Wrong() {
         JOptionPane.showMessageDialog(this,"No such Directory!" );
+    }
+
+    @Override
+    public void addTab(String name) {
+        int count=0;
+        boolean alreadyhas=false;
+        if (tabbedPane.getTabCount()==0) tabbedPane.addTab(name,new JScrollPane((new JEditorPane())));
+        while (count<tabbedPane.getTabCount()) {
+            if (tabbedPane.getTitleAt(count)==name) {
+            alreadyhas=true;
+            tabbedPane.setSelectedIndex(count);
+            }
+        count++;
+        }
+        if (!alreadyhas) {
+            tabbedPane.addTab(name,new JScrollPane((new JEditorPane())));
+            
+        }
+        tabbedPane.revalidate();
+        tabbedPane.repaint();
+        last.revalidate();
+        last.repaint();
     }
 
 }

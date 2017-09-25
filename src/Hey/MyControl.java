@@ -17,6 +17,7 @@ interface MyControlListener {
     void ChangeQuery();
     void GetData();
     void Wrong();
+    void addTab(String name);
 }
 
 public class MyControl /*...*/ {
@@ -67,6 +68,12 @@ public class MyControl /*...*/ {
     public static void fireGetData(){
         for(MyControlListener listener : listeners) {
             listener.GetData();
+        }
+    }
+
+    public  static void fireaddTab(String name){
+        for(MyControlListener listener : listeners) {
+            listener.addTab(name);
         }
     }
 /* ...... код может вызывать fireListeners(count) когда требуется уведомить слушателей */

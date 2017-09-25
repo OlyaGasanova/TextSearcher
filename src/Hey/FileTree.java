@@ -20,6 +20,7 @@ import java.util.concurrent.Exchanger;
 import Hey.MyExchanger;
 import Hey.FileNavigator;
 import static Hey.MyControl.fireEndLoading;
+import static Hey.MyControl.fireaddTab;
 
 public class FileTree extends JPanel  {
     JTree tree;
@@ -35,7 +36,9 @@ public class FileTree extends JPanel  {
         tree = new JTree(root);
         //tree =
         tree.setRootVisible(false);
-        add(new JScrollPane((JTree)tree),"Center");
+        JScrollPane myJScrollPane = new JScrollPane((JTree)tree);
+        myJScrollPane.setSize(300,700);
+                add(myJScrollPane,"Center");
 
         tree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
@@ -43,25 +46,14 @@ public class FileTree extends JPanel  {
                 System.out.println(tree.getSelectionPath().getLastPathComponent());
                 if (tree.getSelectionPath().getLastPathComponent().toString().endsWith("txt")) {
                     System.out.println("Приветики");
-                  //  try {
                         FileNavigator current = new FileNavigator();
                         current.currentpath=tree.getSelectionPath().getLastPathComponent().toString();
                         Settings.currentFile = current;
-
+                        fireaddTab(tree.getSelectionPath().getLastPathComponent().toString());
                         Thread t = new Thread(Settings.currentFile,"new");
                         String message="From FileTreeListener";
                         //this.exchanger=Settings.exchanger.ex;
                         t.start();
-    //                    try{
-//                            message=exchanger.exchange(message);
-  //                          System.out.println("FileTreeListener получил: " + message);
-   //                     } catch (InterruptedException e) {
-   //                         e.printStackTrace();
-    //                    }
-                     //   current.searchUsingBufferedReader(tree.getSelectionPath().getLastPathComponent().toString(), Settings.request);
-                // } catch (IOException e1) {
-                  //      e1.printStackTrace();
-                 //   }
                 }
             }
         });

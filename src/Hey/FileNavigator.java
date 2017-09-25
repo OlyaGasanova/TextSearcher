@@ -18,8 +18,9 @@ public class FileNavigator implements Runnable{
 
     boolean nextpage=false;
     boolean previouspage=false;
+    boolean firstmathing = true;
     private boolean firsttime=true;
-    public boolean next =true;
+    public boolean next =false;
 
     int currentposition=0;
     int currentpenetration=0;
@@ -32,179 +33,128 @@ public class FileNavigator implements Runnable{
     public String currentpath;
     public static ArrayList<String> myText=new ArrayList<String>();
 
-    public String NextPage()throws IOException{
+   public String Read(int position, String mode) throws IOException{
 
-        String searchQuery = Settings.request;
-        br=null;
-        Hello="";
-        myText=new ArrayList<String>();
-
-        char[] cbuf=new char[1];
-        boolean somethibgFind=false;
-
-        String line="";
-
-        System.out.println("Следующая страница");
-
-        try {
-            br = new BufferedReader(new InputStreamReader(new FileInputStream(currentpath)));
-            br.skip(currentpage);
-            while ((br.read(cbuf,0,1))!=-1)
-            {
-                somethibgFind=true;
-                newpage++;
-                line=line+cbuf[0];
-                currentposition++;
+       br=null;
+       Hello="";
+       myText=new ArrayList<String>();
+       char[] cbuf=new char[1];
 
 
-                if (line.contains(searchQuery))
-                {
-                    positionmatches.add(currentposition);
-                    myText.add(line);
-                    line="";
-                }
+       boolean findmatch = false;
+       String line="";
 
-                if (cbuf[0]=='\n') {
-
-                    line+="<br>";
-                    myText.add(line);
-                    line="";
-
-                    if (newpage>=200)
-                    {
-                        newpage=0;
-                        pages.add(currentposition);
-                        return null;
-                    }
-                }
-
-
-            }
-
-        }
-        finally {
-
-
-            if (!somethibgFind)
-            {
-                fireEndofFile();
-
-            }
-            else {
-                if (br.read(cbuf,0,1)==-1) {
-                    pages.add(currentposition);
-                    newpage=0;
-                }
-                System.out.println(pages.toString());
-
-                line += "<br>";
-                myText.add(line);
-                for (String part : myText
-                        ) {
-                    Hello += part;
-
-                }
-                currentpage = currentposition;
-                fireFirstTextAdded(Hello);
-            }
-
-            try
-            {
-                br.close();
-            }
-            catch (Exception e)
-            {
-                System.err.println("Exception while closing bufferedreader " + e.toString());
-            }
-        }
-        return null;
-    }
-
-
-    public String PreviousPage()throws IOException{
+       newpage=0;
+       System.out.println("Read function "+currentposition);
 
 
 
+       try {
+           br = new BufferedReader(new InputStreamReader(new FileInputStream(currentpath)));
+           br.skip(position);
+
+           while ((br.read(cbuf,0,1))!=-1)
+           {
+               newpage++;
+               currentposition++;
+               line=line+cbuf[0];
+
+               if (line.contains(searchQuery)&&(!findmatch))
+               {
+                   if (!positionmatches.contains(currentposition)){
+                       positionmatches.add(currentposition);
+                       System.out.println(currentposition+" "+cbuf+" "+line+" "+findmatch);
+                   }
+                   if((mode=="find")&&(currentposition>currentpenetration)&&(!findmatch)) {
+                       line = line.replaceAll(searchQuery, "<b>"+searchQuery+"</b>");
+                       currentpenetration=currentposition;
+                       findmatch=true;
+                       System.out.println(line);
+                   }
+                   if (firsttime) findmatch=true;
+                   myText.add(line);
+                   line="";
+
+               }
+
+               if (cbuf[0]=='\n') {
+
+                   line+="<br>";
+                   myText.add(line);
+                   line="";
+
+                   if (newpage>=200)
+                   {
+                       if (!pages.contains(currentposition))pages.add(currentposition);
+                       newpage=0;
+                       currentpage=currentposition;
+                       line+="<br>";
+                       //for (String part:myText
+                       //        ) { Hello+=part;
+
+                       //}
+                       System.out.println(currentposition);
+                       if (((mode=="find")&&findmatch)||((mode=="first")&&(firsttime)&&(findmatch))||(mode=="another")) break;
+                       else myText.clear();
+                   }
+               }
 
 
-        String searchQuery = Settings.request;
-        br=null;
-        Hello="";
-        myText=new ArrayList<String>();
+           }
 
-        char[] cbuf=new char[1];
-        boolean somethingread=false;
+       }
+       finally {
 
-        String line="";
-        System.out.println(pages.toString()+" "+currentpage);
-        System.out.println("Предыдущая страница");
-
-        try {
-            if (currentpage==(int)pages.get(1)) {
-                fireEndofFile();
-                return null;
-            }
-
-            currentpage=(int)pages.get(pages.size()-3);
-            currentposition=currentpage;
-            pages.remove(pages.size()-1);
-
-
-            br = new BufferedReader(new InputStreamReader(new FileInputStream(currentpath)));
-            br.skip(currentpage);
-            while ((br.read(cbuf,0,1))!=-1)
-            {
-                newpage++;
-                line=line+cbuf[0];
-                currentposition++;
-                somethingread=true;
-
-                if (cbuf[0]=='\n') {
-
-                    line+="<br>";
-                    myText.add(line);
-                    line="";
-
-                    if (newpage>=200)
-                    {
-                        newpage=0;
-                        return null;
-                    }
-                }
-
-
-            }
-
-        }
-        catch (IndexOutOfBoundsException e){
-            fireEndofFile();
-        }
-        finally {
-
-           if (somethingread) {
-               line += "<br>";
+           currentpage=currentposition;
+           if (!pages.contains(currentposition))pages.add(currentposition);
+           if (line!="") myText.add(line);
+           if(!myText.isEmpty()) {
+               //line+="<br>";
                myText.add(line);
                for (String part : myText
                        ) {
                    Hello += part;
 
                }
-               currentpage = currentposition;
-               fireFirstTextAdded(Hello);
+               return Hello;
            }
+           try
+           {
+               br.close();
+           }
+           catch (Exception e)
+           {
+               System.err.println("Exception while closing bufferedreader " + e.toString());
+           }
+       }
 
 
-            try
-            {
-                br.close();
-            }
-            catch (Exception e)
-            {
-                System.err.println("Exception while closing bufferedreader " + e.toString());
-            }
+       return null;
+   }
+
+    public String NextPage()throws IOException{
+        currentposition=currentpage;
+        String result = Read(currentpage, "another");
+        if (result!=null) fireFirstTextAdded(result);
+        else fireEndofFile();
+        return null;
+    }
+
+
+    public String PreviousPage()throws IOException{
+
+       System.out.println("Сечас на "+currentpage);
+        if (pages.indexOf(currentpage)>1)
+        {
+
+            currentpage=(int)pages.get(pages.indexOf(currentpage)-2);
+            currentposition=currentpage;
+            System.out.println("Перешли на "+currentpage);
+            String result = Read(currentpage, "another");
+            fireFirstTextAdded(result);
         }
-
-
+        else fireEndofFile();
+        System.out.println(pages);
         return null;
 
 
@@ -214,104 +164,36 @@ public class FileNavigator implements Runnable{
 
     public String NextPenetration() throws IOException {
 
-        boolean flag=false;
-        int temppenetr = currentpenetration;
+        int countpage = pages.size() - 1;
+        int tempmatch = currentpenetration;
+        int sparepage = currentpage;
+        String result = "";
 
-        if (currentpenetration<(int)positionmatches.get(positionmatches.size()-1)) {
-            flag=false;
-            int countpen = 0;
-            int countpag = pages.size() - 1;
-            //найти мин пенетрейшн>кьюррент
-            while (currentpenetration >= (int) positionmatches.get(countpen))
-                countpen++;
-            //найти макс пэйдж< мин петерейшн
-            while ((int) positionmatches.get(countpen) < (int) pages.get(countpag)) {
-                //pages.remove(countpag);
-                countpag--;
+
+        if (currentpenetration == 0) {
+            while (currentpenetration < (int) pages.get(countpage))
+                countpage--;
+            currentpage = (int) pages.get(countpage);
+            currentposition = currentpage;
+            result = Read(currentpage, "find");
+        } else{
+            while (currentpenetration < (int) pages.get(countpage))
+                countpage--;
+            currentpage = (int) pages.get(countpage);
+            currentposition = currentpage;
+            result = Read(currentpage, "find");
+            while (currentpenetration == tempmatch) {
+                result = Read(currentpage, "find");
+                if (result == null) {
+                    fireEndofFile();
+                    currentpage = sparepage;
+                    currentposition = sparepage;
+                    return null;
+                }
             }
-            currentpage = (int) pages.get(countpag);
-            currentposition=currentpage;
         }
-
-        else
-        {
-            flag=true;
-            currentpage=(int)pages.get(pages.size()-1);
-            currentposition=currentpage;
-        }
-            //считать её, выделив вхождение на этой позиции
-
-            String searchQuery = Settings.request;
-            br=null;
-            Hello="";
-            myText=new ArrayList<String>();
-            currentposition=currentpage;
-            char[] cbuf=new char[1];
-            boolean somethingfind=false;
-
-            String line="";
-            try {
-                System.out.println("Чтение");
-                br = new BufferedReader(new InputStreamReader(new FileInputStream(currentpath)));
-                br.skip(currentpage);
-                newpage=0;
-                while ((br.read(cbuf,0,1))!=-1)
-                {
-                    line=line+cbuf[0];
-                    currentposition++;
-                    newpage++;
-                    if (line.contains(searchQuery))
-                    {
-                        if (!positionmatches.contains(currentposition)) positionmatches.add(currentposition);
-                        if (currentposition==(int)positionmatches.get(positionmatches.indexOf(temppenetr)+1)) {
-                            currentpenetration=currentposition;
-                            line = line.replaceAll(searchQuery, "<b>"+searchQuery+"</b>");
-                            somethingfind=true;
-                        }
-                        myText.add(line);
-                        line="";
-                    }
-
-                    if (cbuf[0]=='\n') {
-
-                        line+="<br>";
-                        myText.add(line);
-                        line="";
-
-                        if (newpage>=200)
-                        {
-                            newpage=0;
-                            if (!pages.contains(currentposition)) pages.add(currentposition);
-                            return null;
-                        }
-                    }
-                }
-            }
-            catch (IndexOutOfBoundsException ex){
-                fireEndofFile();
-            }
-            finally {
-
-                if (somethingfind){
-                    line += "<br>";
-                    myText.add(line);
-                    for (String part : myText
-                            ) {
-                        Hello += part;
-                    }
-                    System.out.println(pages.toString() + positionmatches.toString());
-                    currentpage = currentposition;
-                    fireFirstTextAdded(Hello);
-                }
-                try
-                {
-                    br.close();
-                }
-                catch (Exception e)
-                {
-                    System.err.println("Exception while closing bufferedreader " + e.toString());
-                }
-            }
+        fireFirstTextAdded(result);
+        System.out.println(positionmatches);
         return null;
 
     }
@@ -320,18 +202,14 @@ public class FileNavigator implements Runnable{
 
     public String PreviousPenetration() throws IOException{
 
-        boolean somethingFind=false;
-        try {
-            System.out.println(currentpenetration);
-            if (positionmatches.indexOf(currentpenetration)==1) currentpenetration=0;
-            else currentpenetration = (int) positionmatches.get(positionmatches.indexOf(currentpenetration) - 2);
-            System.out.println(currentpenetration);
-            NextPenetration();
-        }
-        catch (IndexOutOfBoundsException e) {fireEndofFile();}
-        finally {
+       if ((currentpenetration==0)||(positionmatches.indexOf(currentpenetration)==0)) {
+           fireEndofFile();
+           return null;
+       }
+       if (positionmatches.indexOf(currentpenetration)==1) currentpenetration=0;
+       else currentpenetration=(int)positionmatches.get(positionmatches.indexOf(currentpenetration)-2);
 
-        }
+        NextPenetration();
 
         return null;
 
@@ -340,81 +218,24 @@ public class FileNavigator implements Runnable{
 
     public String searchUsingBufferedReader(String filePath, String Query) throws IOException
     {
-
-        searchQuery = Query.trim();
-        br=null;
-        Hello="";
-        myText=new ArrayList<String>();
-
-        char[] cbuf=new char[1];
-
-        String line="";
-        currentpenetration=0;
         pages.add(0);
-        positionmatches.clear();
         currentpath=filePath;
-        System.out.println("Первый раз");
-
-        try {
-            FileInputStream i =new FileInputStream(filePath); //Нужно ли оно??
-            br = new BufferedReader(new InputStreamReader(i));
-
-            while ((br.read(cbuf,0,1))!=-1)
-            {
-                newpage++;
-                currentposition++;
-                line=line+cbuf[0];
-
-                if (line.contains(searchQuery))
-                {
-                    //line = line.replaceAll(searchQuery, "<b>"+searchQuery+"</b>");
-                    positionmatches.add(currentposition);
-                    myText.add(line);
-                    line="";
-                }
-
-                if (cbuf[0]=='\n') {
-
-                    line+="<br>";
-                    myText.add(line);
-                    line="";
-
-                    if (newpage>=200)
-                    {
-                        pages.add(currentposition);
-                        newpage=0;
-                        return null;
-                    }
-                }
-
-
-            }
-
-        }
-        finally {
-
-            currentpage=currentposition;
-            line+="<br>";
-            myText.add(line);
-            for (String part:myText
-                    ) { Hello+=part;
-
-            }
-            fireFirstTextAdded(Hello);
-
-
-            try
-            {
-                br.close();
-            }
-            catch (Exception e)
-            {
-                System.err.println("Exception while closing bufferedreader " + e.toString());
+        searchQuery = Query.trim();
+        String result="";
+        firsttime = true;
+        while (positionmatches.isEmpty()) {
+            if (firsttime) {
+                Read(currentposition, "first");
+                firsttime=false;
             }
         }
-
-
-
+        currentposition=0;
+        currentpage=0;
+        System.out.println(firsttime);
+        result = Read(currentposition, "another");
+        fireFirstTextAdded(result);
+        currentpenetration=0;
+        System.out.println(positionmatches);
         return null;
     }
 
@@ -432,6 +253,7 @@ public class FileNavigator implements Runnable{
                 } else {
                     if (next) {
                         NextPenetration();
+                        next=false;
                     } else PreviousPenetration();
                 }
             }

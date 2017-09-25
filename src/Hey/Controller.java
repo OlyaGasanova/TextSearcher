@@ -89,7 +89,6 @@ class NextPage extends MouseAdapter {
     public void mouseClicked(MouseEvent e) {
         Settings.currentFile.nextpage=true;
         Thread t = new Thread(Settings.currentFile,"new");
-        System.out.println("nextpage");
         //this.exchanger=Settings.exchanger.ex;
         t.start();
         //Settings.currentFile.NextPenetration();
@@ -101,7 +100,6 @@ class PreviousPage extends MouseAdapter {
     public void mouseClicked(MouseEvent e) {
         Settings.currentFile.previouspage=true;
         Thread t = new Thread(Settings.currentFile,"new");
-        System.out.println("previous page");
         //this.exchanger=Settings.exchanger.ex;
         t.start();
         //Settings.currentFile.NextPenetration();
