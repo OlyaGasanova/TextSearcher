@@ -9,15 +9,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import Hey.GuiTest;
 import Hey.Settings;
 import Hey.FileNavigator;
-import static Hey.MyControl.fireChangeDirectory;
-import static Hey.MyControl.fireGetData;
-import static Hey.MyControl.fireWrong;
 
-import static Hey.MyControl.fireListeners;
+import static Hey.MyControl.*;
 
 /**
  * Created by user on 19.09.2017.
@@ -109,6 +107,32 @@ class PreviousPage extends MouseAdapter {
     }
 }
 
+class Select extends MouseAdapter {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+    fireSelect();
+    }
+}
+
+class restartButton extends MouseAdapter{
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        Settings.Editors = new ArrayList<JEditorPane>();
+        Settings.Navigators = new ArrayList<FileNavigator>();
+        Settings.currentTab=0;
+        Settings.currentFile = null;
+        Settings.directory=null;
+        Settings.extension = "log";
+        Settings.exchanger = new MyExchanger();
+        Settings.mytree1=null;
+        Settings.request =null;
+        Settings.temppath=null;
+        Settings.directory = Paths.get("").toAbsolutePath().toString();
+        fireReset();
+
+
+    }
+}
 
 class changedTab implements ChangeListener{
         @Override

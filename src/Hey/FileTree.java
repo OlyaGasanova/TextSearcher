@@ -20,6 +20,7 @@ import java.util.concurrent.Exchanger;
 import Hey.MyExchanger;
 import Hey.FileNavigator;
 import static Hey.MyControl.fireEndLoading;
+import static Hey.MyControl.fireNothingFound;
 import static Hey.MyControl.fireaddTab;
 
 public class FileTree extends JPanel  {
@@ -32,6 +33,7 @@ public class FileTree extends JPanel  {
         System.out.println("строим в "+ myPath+ " "+Settings.directory);
         root = new DefaultMutableTreeNode("root", true);
         getList(root, new File(Settings.directory));
+        if (root.getChildCount()==0) fireNothingFound();
         setLayout(new BorderLayout());
         tree = new JTree(root);
         //tree =
@@ -103,7 +105,7 @@ public class FileTree extends JPanel  {
     }
 
     public Dimension getPreferredSize(){
-        return new Dimension(200, 400);
+        return new Dimension(300, 400);
     }
 
     public void getList(DefaultMutableTreeNode node, File f) throws IOException {

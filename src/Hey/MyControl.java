@@ -18,6 +18,9 @@ interface MyControlListener {
     void GetData();
     void Wrong();
     void addTab(String name);
+    void Reset();
+    void Select();
+    void NothingFound();
 }
 
 public class MyControl /*...*/ {
@@ -76,5 +79,23 @@ public class MyControl /*...*/ {
             listener.addTab(name);
         }
     }
+
+    public  static void fireReset(){
+        for(MyControlListener listener : listeners) {
+            listener.Reset();
+        }
+    }
+    public  static void fireSelect(){
+        for(MyControlListener listener : listeners) {
+            listener.Select();
+        }
+    }
+
+    public  static void fireNothingFound(){
+        for(MyControlListener listener : listeners) {
+            listener.NothingFound();
+        }
+    }
+
 /* ...... код может вызывать fireListeners(count) когда требуется уведомить слушателей */
 }
