@@ -1,11 +1,13 @@
 package Hey;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
-import static  Hey.MyControl.fireFirstTextAdded;
-import static  Hey.MyControl.fireEndofFile;
-import Hey.Settings;
+
+import static Hey.MyControl.fireEndofFile;
+import static Hey.MyControl.fireFirstTextAdded;
 
 /**
  * Created by user on 20.09.2017.
@@ -13,64 +15,59 @@ import Hey.Settings;
 public class FileNavigator implements Runnable{
 
     BufferedReader br = null;
-    String Hello="";
+    String resultText="";
     String searchQuery="";
 
-    boolean nextpage=false;
-    boolean previouspage=false;
+    boolean nextPage=false;
+    boolean previousPage=false;
     boolean firstmathing = true;
     private boolean firsttime=true;
     public boolean next =false;
 
-    int currentposition=0;
-    int currentpenetration=0;
-    int currentpage = 0;
-    int newpage=0;
-    ArrayList positionmatches = new ArrayList();
-    ArrayList pages =new ArrayList();
+    int currentPosition=0;
+    int currentOccurrence=0;
+    int currentPage = 0;
+    int newPage=0;
+    ArrayList PositionMatches = new ArrayList();
+    ArrayList Pages =new ArrayList();
 
 
     public String currentpath;
-    public static ArrayList<String> myText=new ArrayList<String>();
+    public static ArrayList<String> listText=new ArrayList<String>();
 
-   public String Read(int position, String mode) throws IOException{
+   public String Read(int Position, String mode) throws IOException{
 
        br=null;
-       Hello="";
-       myText=new ArrayList<String>();
+       resultText="";
+       listText=new ArrayList<String>();
        char[] cbuf=new char[1];
-
-
        boolean findmatch = false;
        String line="";
 
-       newpage=0;
-
-
-
+       newPage=0;
 
        try {
            br = new BufferedReader(new InputStreamReader(new FileInputStream(currentpath)));
-           br.skip(position);
+           br.skip(Position);
 
            while ((br.read(cbuf,0,1))!=-1)
            {
-               newpage++;
-               currentposition++;
+               newPage++;
+               currentPosition++;
                line=line+cbuf[0];
 
                if (line.contains(searchQuery)&&(!findmatch))
                {
-                   if (!positionmatches.contains(currentposition)){
-                       positionmatches.add(currentposition);
+                   if (!PositionMatches.contains(currentPosition)){
+                       PositionMatches.add(currentPosition);
                    }
-                   if((mode=="find")&&(currentposition>currentpenetration)&&(!findmatch)) {
+                   if((mode=="find")&&(currentPosition>currentOccurrence)&&(!findmatch)) {
                        line = line.replaceAll(searchQuery, "<b>"+searchQuery+"</b>");
-                       currentpenetration=currentposition;
+                       currentOccurrence=currentPosition;
                        findmatch=true;
                    }
                    if (firsttime) findmatch=true;
-                   myText.add(line);
+                   listText.add(line);
                    line="";
 
                }
@@ -78,21 +75,21 @@ public class FileNavigator implements Runnable{
                if (cbuf[0]=='\n') {
 
                    line+="<br>";
-                   myText.add(line);
+                   listText.add(line);
                    line="";
 
-                   if (newpage>=200)
+                   if (newPage>=200)
                    {
-                       if (!pages.contains(currentposition))pages.add(currentposition);
-                       newpage=0;
-                       currentpage=currentposition;
+                       if (!Pages.contains(currentPosition))Pages.add(currentPosition);
+                       newPage=0;
+                       currentPage=currentPosition;
                        line+="<br>";
-                       //for (String part:myText
-                       //        ) { Hello+=part;
+                       //for (String part:listText
+                       //        ) { resultText+=part;
 
                        //}
-                       if (((mode=="find")&&findmatch)||((mode=="first")&&(firsttime)&&(findmatch))||(mode=="another")) break;
-                       else myText.clear();
+                       if (((mode=="find")&&findmatch)||((mode=="first")&&(firsttime)&&(findmatch))||(mode=="resultBox")) break;
+                       else listText.clear();
                    }
                }
 
@@ -102,18 +99,17 @@ public class FileNavigator implements Runnable{
        }
        finally {
 
-           currentpage=currentposition;
-           if (!pages.contains(currentposition))pages.add(currentposition);
-           if (line!="") myText.add(line);
-           if(!myText.isEmpty()) {
-               //line+="<br>";
-               myText.add(line);
-               for (String part : myText
+           currentPage=currentPosition;
+           if (!Pages.contains(currentPosition))Pages.add(currentPosition);
+           if (line!="") listText.add(line);
+           if(!listText.isEmpty()) {
+               listText.add(line);
+               for (String part : listText
                        ) {
-                   Hello += part;
+                   resultText += part;
 
                }
-               return Hello;
+               return resultText;
            }
            try
            {
@@ -130,8 +126,8 @@ public class FileNavigator implements Runnable{
    }
 
     public String NextPage()throws IOException{
-        currentposition=currentpage;
-        String result = Read(currentpage, "another");
+        currentPosition=currentPage;
+        String result = Read(currentPage, "resultBox");
         if (result!=null) fireFirstTextAdded(result);
         else fireEndofFile();
         return null;
@@ -140,12 +136,12 @@ public class FileNavigator implements Runnable{
 
     public String PreviousPage()throws IOException{
 
-        if (pages.indexOf(currentpage)>1)
+        if (Pages.indexOf(currentPage)>1)
         {
 
-            currentpage=(int)pages.get(pages.indexOf(currentpage)-2);
-            currentposition=currentpage;
-            String result = Read(currentpage, "another");
+            currentPage=(int)Pages.get(Pages.indexOf(currentPage)-2);
+            currentPosition=currentPage;
+            String result = Read(currentPage, "resultBox");
             fireFirstTextAdded(result);
         }
         else fireEndofFile();
@@ -156,32 +152,32 @@ public class FileNavigator implements Runnable{
 
 
 
-    public String NextPenetration() throws IOException {
+    public String NextOccurrence() throws IOException {
 
-        int countpage = pages.size() - 1;
-        int tempmatch = currentpenetration;
-        int sparepage = currentpage;
+        int countPage = Pages.size() - 1;
+        int tempmatch = currentOccurrence;
+        int sparePage = currentPage;
         String result = "";
 
 
-        if (currentpenetration == 0) {
-            while (currentpenetration < (int) pages.get(countpage))
-                countpage--;
-            currentpage = (int) pages.get(countpage);
-            currentposition = currentpage;
-            result = Read(currentpage, "find");
+        if (currentOccurrence == 0) {
+            while (currentOccurrence < (int) Pages.get(countPage))
+                countPage--;
+            currentPage = (int) Pages.get(countPage);
+            currentPosition = currentPage;
+            result = Read(currentPage, "find");
         } else{
-            while (currentpenetration < (int) pages.get(countpage))
-                countpage--;
-            currentpage = (int) pages.get(countpage);
-            currentposition = currentpage;
-            result = Read(currentpage, "find");
-            while (currentpenetration == tempmatch) {
-                result = Read(currentpage, "find");
+            while (currentOccurrence < (int) Pages.get(countPage))
+                countPage--;
+            currentPage = (int) Pages.get(countPage);
+            currentPosition = currentPage;
+            result = Read(currentPage, "find");
+            while (currentOccurrence == tempmatch) {
+                result = Read(currentPage, "find");
                 if (result == null) {
                     fireEndofFile();
-                    currentpage = sparepage;
-                    currentposition = sparepage;
+                    currentPage = sparePage;
+                    currentPosition = sparePage;
                     return null;
                 }
             }
@@ -193,16 +189,16 @@ public class FileNavigator implements Runnable{
 
 
 
-    public String PreviousPenetration() throws IOException{
+    public String PreviousOccurrence() throws IOException{
 
-       if ((currentpenetration==0)||(positionmatches.indexOf(currentpenetration)==0)) {
+       if ((currentOccurrence==0)||(PositionMatches.indexOf(currentOccurrence)==0)) {
            fireEndofFile();
            return null;
        }
-       if (positionmatches.indexOf(currentpenetration)==1) currentpenetration=0;
-       else currentpenetration=(int)positionmatches.get(positionmatches.indexOf(currentpenetration)-2);
+       if (PositionMatches.indexOf(currentOccurrence)==1) currentOccurrence=0;
+       else currentOccurrence=(int)PositionMatches.get(PositionMatches.indexOf(currentOccurrence)-2);
 
-        NextPenetration();
+        NextOccurrence();
 
         return null;
 
@@ -211,40 +207,40 @@ public class FileNavigator implements Runnable{
 
     public String searchUsingBufferedReader(String filePath, String Query) throws IOException
     {
-        pages.add(0);
+        Pages.add(0);
         currentpath=filePath;
         searchQuery = Query.trim();
         String result="";
         firsttime = true;
-        while (positionmatches.isEmpty()) {
+        while (PositionMatches.isEmpty()) {
             if (firsttime) {
-                Read(currentposition, "first");
+                Read(currentPosition, "first");
                 firsttime=false;
             }
         }
-        currentposition=0;
-        currentpage=0;
-        result = Read(currentposition, "another");
+        currentPosition=0;
+        currentPage=0;
+        result = Read(currentPosition, "resultBox");
         fireFirstTextAdded(result);
-        currentpenetration=0;
+        currentOccurrence=0;
         return null;
     }
 
     @Override
     public void run() {
         try {
-        if (previouspage) {PreviousPage(); previouspage=false;}
+        if (previousPage) {PreviousPage(); previousPage=false;}
         else
-        if (nextpage){ NextPage();nextpage=false;}
+        if (nextPage){ NextPage();nextPage=false;}
              else{
                 if (firsttime) {
                     searchUsingBufferedReader(this.currentpath, Settings.request);
                     firsttime = false;
                 } else {
                     if (next) {
-                        NextPenetration();
+                        NextOccurrence();
                         next=false;
-                    } else PreviousPenetration();
+                    } else PreviousOccurrence();
                 }
             }
         }

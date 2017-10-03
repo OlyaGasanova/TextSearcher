@@ -23,7 +23,7 @@ interface MyControlListener {
     void NothingFound();
 }
 
-public class MyControl /*...*/ {
+public class MyControl {
     private static ArrayList<MyControlListener> listeners = new ArrayList<MyControlListener>();
 
     public void addListener(MyControlListener listener) {
@@ -97,5 +97,4 @@ public class MyControl /*...*/ {
         }
     }
 
-/* ...... код может вызывать fireListeners(count) когда требуется уведомить слушателей */
 }

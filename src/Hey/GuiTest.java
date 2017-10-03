@@ -3,20 +3,9 @@ package Hey;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.ArrayList;
-import Hey.Settings;
-
-import Hey.SearchTextInFile;
 
 
 public class GuiTest extends JFrame implements MyControlListener{
@@ -24,27 +13,28 @@ public class GuiTest extends JFrame implements MyControlListener{
     MyJFrame mytree = new MyJFrame(Settings.directory);
     private JButton chooserbutton = new JButton("Press");
     private JButton restartButton = new JButton("Restart");
-    private JTextField inputpath = new JTextField("H:\\Depeche mode", 20);
-    private JTextField inputtext = new JTextField("yandex", 20);
-    private JEditorPane testtest = new JEditorPane("text/html", "");
+    private JTextField inputpath = new JTextField("C:\\", 20);
+    private JTextField inputtext = new JTextField("query", 20);
     private JLabel labelpath = new JLabel("Input path");
     private JLabel labeltext = new JLabel("Input query");
     private JButton search = new JButton("Search!");
-    private JButton test = new JButton("ChooseDir");
-    private JPanel last = new JPanel();
+    private JPanel textBox = new JPanel();
     public JTabbedPane tabbedPane = new JTabbedPane();
     JButton nextmatch = new JButton("match>");
     JButton select = new JButton("Select");
     JButton prevmatch = new JButton("<match");
-    JButton prevpage = new JButton("<<page");
-    JButton nextpage = new JButton("page>>");
+    JButton prevPage = new JButton("<<Page");
+    JButton nextPage = new JButton("Page>>");
+
+    Box resultBox = new Box(BoxLayout.X_AXIS);
+    private Box mainBox = new Box(BoxLayout.Y_AXIS);
+    private Box pathBox = new Box(BoxLayout.X_AXIS);
+    Container container = this.getContentPane();
 
     DefaultMutableTreeNode root = new DefaultMutableTreeNode("root", true);
     public JTree Mytree = new JTree(root);
-    private JPanel foldertree = new JPanel();
-    public JPanel boxThird= new JPanel();// = mytree.giveme("H:/JavaProjTest");
-    Box another = new Box(BoxLayout.X_AXIS);
-    Container container = this.getContentPane();
+    public JPanel treeBox= new JPanel();
+    private Box buttonsbox = new Box(BoxLayout.X_AXIS);
 
 
     String[] items = {
@@ -53,128 +43,73 @@ public class GuiTest extends JFrame implements MyControlListener{
             "dox"
     };
     private JComboBox comboBox = new JComboBox(items);
-    private String settings="log";
-
-
-
 
 
     public GuiTest() throws IOException {
 
         super("Find what you want"); //Заголовок окна
-        setBounds(100, 100, 700, 600); //Если не выставить
-        //размер и положение
-        //то окно будет мелкое и незаметное
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //это нужно для того чтобы при
-        //Container container = this.getContentPane();
-        Box boxZeroLevel = new Box(BoxLayout.Y_AXIS);
-        //container.addLi
-       // JPanel b = new JPanel();
-        //b.setLayout(new BoxLayout(b, BoxLayout.X_AXIS));
-        Box boxFirst = new Box(BoxLayout.X_AXIS);
+        setBounds(100, 100, 900, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         inputpath.setMaximumSize(new Dimension(100,20));
         inputpath.setMinimumSize(new Dimension(50,20));
-       // boxFirst.setPreferredSize(new Dimension(container.getWidth(),10));
-       // boxFirst.add(labelpath);boxFirst.add(inputpath);
-        //boxFirst.setSize(new Dimension(container.getWidth(),40));
-        //boxFirst.setMinimumSize(new Dimension(container.getWidth(),40));
-       // b.setMaximumSize(new Dimension(container.getWidth(),40));
-       // b.setBackground(Color.blue);
-       // boxFirst.add(Box.createVerticalStrut(40));
-       // boxFirst.add(Box.createHorizontalStrut(15));
-        boxFirst.add(Box.createHorizontalStrut(15));
-        boxFirst.add(labelpath);
-        boxFirst.add(Box.createHorizontalStrut(15));
-        boxFirst.add(inputpath);
-        boxFirst.add(Box.createHorizontalStrut(15));
-        boxFirst.add(chooserbutton);
+        pathBox.add(Box.createHorizontalStrut(15));
+        pathBox.add(labelpath);
+        pathBox.add(Box.createHorizontalStrut(15));
+        pathBox.add(inputpath);
+        pathBox.add(Box.createHorizontalStrut(15));
+        pathBox.add(chooserbutton);
         chooserbutton.addActionListener(new ChooseDirectory());
-        boxFirst.add(Box.createHorizontalStrut(15));
-        boxFirst.add(comboBox);
-        //test.addActionListener(new ChooseDirectory());
-       // boxFirst.add(test);
+        pathBox.add(Box.createHorizontalStrut(15));
+        pathBox.add(comboBox);
+
         comboBox.addActionListener(new ChooserButton());
-        boxFirst.add(Box.createHorizontalStrut(15));
-        boxFirst.add(Box.createVerticalStrut(20));
-        //chooserbutton.addMouseListener(pressbutton);
+        pathBox.add(Box.createHorizontalStrut(15));
+        pathBox.add(Box.createVerticalStrut(20));
 
-        //JComboBox comboBox = new JComboBox(items);
-        //comboBox.setEditable(true);
-       // comboBox.addMouseListener(pressbutton);
-        //b.add(boxFirst);
-
-        Box boxSecond = new Box(BoxLayout.X_AXIS);
+        Box queryBox = new Box(BoxLayout.X_AXIS);
         inputtext.setMaximumSize(new Dimension(100,20));
-        boxSecond.add(Box.createHorizontalStrut(15));
-        boxSecond.add(labeltext);
-        boxSecond.add(Box.createHorizontalStrut(15));
-        boxSecond.add(inputtext);
-        boxSecond.add(Box.createHorizontalStrut(15));
-        boxSecond.add(search);
-        boxSecond.add(Box.createHorizontalStrut(15));
-        boxSecond.add(restartButton);
+        queryBox.add(Box.createHorizontalStrut(15));
+        queryBox.add(labeltext);
+        queryBox.add(Box.createHorizontalStrut(15));
+        queryBox.add(inputtext);
+        queryBox.add(Box.createHorizontalStrut(15));
+        queryBox.add(search);
+        queryBox.add(Box.createHorizontalStrut(15));
+        queryBox.add(restartButton);
         restartButton.addMouseListener(new restartButton());
         search.addMouseListener(new SearchButton());
-        boxSecond.add(Box.createVerticalStrut(40));
+        queryBox.add(Box.createVerticalStrut(40));
 
 
         nextmatch.setEnabled(false);prevmatch.setEnabled(false);
-        prevpage.setEnabled(false);nextpage.setEnabled(false);
+        prevPage.setEnabled(false);nextPage.setEnabled(false);
         select.setEnabled(false);
         select.addMouseListener(new Select());
         nextmatch.addMouseListener(new Next());
         nextmatch.setMaximumSize(new Dimension(30,30));
         prevmatch.addMouseListener(new Previous());
-        prevpage.addMouseListener(new PreviousPage());
+        prevPage.addMouseListener(new PreviousPage());
 
-        nextpage.addMouseListener(new NextPage());
+        nextPage.addMouseListener(new NextPage());
         prevmatch.setMaximumSize(new Dimension(30,30));
 
-        last.setLayout(new BorderLayout());
-        Box buttonsbox = new Box(BoxLayout.X_AXIS);
+        textBox.setLayout(new BorderLayout());
+
         buttonsbox.add(Box.createHorizontalGlue());
-        buttonsbox.add(prevpage);
+        buttonsbox.add(prevPage);
         buttonsbox.add(prevmatch);
         buttonsbox.add(Box.createHorizontalStrut(15));
         buttonsbox.add(select);
         buttonsbox.add(Box.createHorizontalStrut(15));
-        buttonsbox.add(nextmatch);buttonsbox.add(nextpage);
+        buttonsbox.add(nextmatch);buttonsbox.add(nextPage);
         buttonsbox.add(Box.createHorizontalGlue());
         buttonsbox.setBorder(new EmptyBorder(10,10,10,10));
-        testtest.setMinimumSize(new Dimension(600,200));
-        testtest.setMaximumSize(new Dimension(600,200));
-        last.setSize(new Dimension(600,container.getHeight()));
-        //last.setSize(new Dimension(600,container.getHeight()));
-        last.add(buttonsbox, BorderLayout.NORTH);
-        //last.add(new JScrollPane((JEditorPane)testtest),"Center");
-
-        last.add(tabbedPane);
-       // tabbedPane.addMouseListener(new MouseAdapter() {
-       //     @Override
-       //     public void mouseClicked(MouseEvent e) {
-       //        // super.mouseClicked(e);
-       //        System.out.println( tabbedPane.getSelectedIndex());
-        //        Settings.currentTab=tabbedPane.getSelectedIndex();
-        //        Settings.currentFile=Settings.Navigators.get(tabbedPane.getSelectedIndex());
-
-
-//            }
-  //      });
-
+        textBox.setSize(new Dimension(600,container.getHeight()));
+        textBox.add(buttonsbox, BorderLayout.NORTH);
+        textBox.add(tabbedPane);
         tabbedPane.addChangeListener(new changedTab());
-
-        //last.add(testtest, BorderLayout.CENTER);
-        last.setBorder(new EmptyBorder(10,10,10,10));
-
-        //tabbedPane.add(new JScrollPane((JEditorPane)testtest));
-        //foldertree.setLayout(new Box(BoxLayout.X_AXIS));
-        foldertree.setBackground(Color.white);
-        foldertree.setBorder(new TitledBorder("Folder Tree"));
-        foldertree.setSize(new Dimension(300,1000));
-        foldertree.setMinimumSize(new Dimension(300,1000));
-        foldertree.setMaximumSize(new Dimension(300,1000));
-        //tree.setBorder(new TitledBorder("rr"));
-
+        textBox.setBorder(new EmptyBorder(10,10,10,10));
 
         Mytree.setSize(new Dimension(150,400));
         Mytree.setMinimumSize(new Dimension(150,400));
@@ -182,27 +117,20 @@ public class GuiTest extends JFrame implements MyControlListener{
         Mytree.setBackground(Color.WHITE);
 
 
-        boxThird.setBorder(new TitledBorder("Folder Path"));
-        //boxThird.setLayout(new BorderLayout());
-       // boxThird.add(Box.createHorizontalStrut(150));
-        //Mytree.setMaximumSize(new Dimension(100,700));
-        //boxThird.setBorder(new TitledBorder("rr"));
-        //boxThird.setBackground(Color.white);
-        //boxThird.add(Mytree, BorderLayout.PAGE_START);
-        boxThird.setMaximumSize(new Dimension(300, 1000));
-        testtest.setPreferredSize(new Dimension(400,10));
-        boxThird.setPreferredSize(new Dimension(300,10));
+        treeBox.setBorder(new TitledBorder("Folder Path"));
+        treeBox.setMaximumSize(new Dimension(300, 1000));
+        treeBox.setMinimumSize(new Dimension(300, 1000));
+        treeBox.setPreferredSize(new Dimension(300,10));
 
-        another.add(boxThird);
-        another.add(Box.createHorizontalStrut(15));
-        another.add(Box.createHorizontalGlue());
-        another.add(last);
+        resultBox.add(treeBox);
+        resultBox.add(Box.createHorizontalStrut(15));
+        resultBox.add(Box.createHorizontalGlue());
+        resultBox.add(textBox);
 
-        boxZeroLevel.add(boxFirst);
-        boxZeroLevel.add(boxSecond);
-        boxZeroLevel.add(another);
-        container.add(boxZeroLevel);
-        //pack();
+        mainBox.add(pathBox);
+        mainBox.add(queryBox);
+        mainBox.add(resultBox);
+        container.add(mainBox);
     }
 
 
@@ -214,17 +142,10 @@ public class GuiTest extends JFrame implements MyControlListener{
 
     public static void main(String[] args) throws IOException {
 
-
-        //String s[]={""};
-        //mytree.hello();
        GuiTest app = new GuiTest();
-        //app.addListener(new MyController());
-        //Создаем экземпляр нашего приложения
        app.setVisible(true);
-       // setContentPane(rootPanel);
         MyControl ctl = new MyControl();
        ctl.addListener(app);
-        System.out.println("Hello World!");
     }
 
 
@@ -232,23 +153,11 @@ public class GuiTest extends JFrame implements MyControlListener{
 
     @Override
     public void onDataChanged(String path) throws IOException {
-        System.out.println("Hello Stupid World!");
         search.setEnabled(false);
         search.setText("Loading");
         Settings.mytree1 = new MyJFrame(path);
-        //another.remove(boxThird);
-        //boxThird = mytree1.giveme("1");
         Thread t =new Thread(Settings.mytree1, "tree");
         t.start();
-        System.out.println("начало в ондатачейндж");
-       /* try {
-            t.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
-        //another.remove(boxThird);
-
-
 
     }
 
@@ -257,22 +166,11 @@ public class GuiTest extends JFrame implements MyControlListener{
     @Override
     public void textChanged(String text) {
 
-        testtest.setText("");
-        //testtest.removeAll();
-        //for (String line:text) {testtest.setText(line);
-       // }
-
-        //tabbedPane.getSelectedComponent()
-        testtest.setText(text);
-       // System.out.println("Hello Stupid World!"+text);
         Settings.Editors.get(Settings.currentTab).setText(text);
-        last.revalidate();
-        last.repaint();
-       // last.setMinimumSize(new Dimension(400,600));
-        //last.setMaximumSize(new Dimension(400,600));
-       // last.setSize(400,600);
-        last.revalidate();
-        last.repaint();
+        textBox.revalidate();
+        textBox.repaint();
+        textBox.revalidate();
+        textBox.repaint();
 
     }
 
@@ -283,16 +181,14 @@ public class GuiTest extends JFrame implements MyControlListener{
 
     @Override
     public void EndLoading() {
-        boxThird.removeAll();
-        boxThird.setBorder(new TitledBorder("Folder Path"));
-        boxThird.add(Settings.mytree1.giveme("H:/Depeche Mode"));
-        //boxThird.setSize(300,400);
-        another.add(boxThird, 0);
-        boxThird.revalidate();
-        boxThird.repaint();
+        treeBox.removeAll();
+        treeBox.setBorder(new TitledBorder("Folder Path"));
+        treeBox.add(Settings.mytree1.giveme());
+        resultBox.add(treeBox, 0);
+        treeBox.revalidate();
+        treeBox.repaint();
         search.setEnabled(true);
         search.setText("Search!");
-        System.out.println("Hello Stupid World!");
     }
 
     @Override
@@ -306,24 +202,21 @@ public class GuiTest extends JFrame implements MyControlListener{
         inputpath.setText("");
         inputtext.setText("");
 
-        last.remove(1);
+        textBox.remove(1);
         tabbedPane=new JTabbedPane();
         comboBox.setSelectedItem("log");
-     //   tabbedPane.removeAll();
-        last.add(tabbedPane);
-        boxThird.removeAll();
-        boxThird.revalidate();
-        boxThird.repaint();
-        another.revalidate();
-        another.repaint();
+        textBox.add(tabbedPane);
+        treeBox.removeAll();
+        treeBox.revalidate();
+        treeBox.repaint();
+        resultBox.revalidate();
+        resultBox.repaint();
         container.revalidate();
         container.repaint();
-        System.out.println("Reset");
     }
 
     @Override
     public void Select() {
-        System.out.println("Select");
         Settings.Editors.get(Settings.currentTab).requestFocusInWindow();
         Settings.Editors.get(Settings.currentTab).selectAll();
     }
@@ -337,7 +230,6 @@ public class GuiTest extends JFrame implements MyControlListener{
     public void GetData() {
         Settings.directory=inputpath.getText();
         Settings.request=inputtext.getText();
-        //Settings.extension=(String) comboBox.getSelectedItem();
     }
 
     @Override
@@ -359,7 +251,6 @@ public class GuiTest extends JFrame implements MyControlListener{
             JEditorPane currentEditor = new JEditorPane("text/html","");
             currentEditor.setEditable(false);
             Settings.currentTab=0;
-            System.out.println(Settings.currentTab+" Добавлена вкладка. Это при каунт==0" );
             FileNavigator current = new FileNavigator();
             current.currentpath=Settings.temppath;
             Settings.currentFile = current;
@@ -372,9 +263,8 @@ public class GuiTest extends JFrame implements MyControlListener{
             count++;
             alreadyhas=true;
 
-
             nextmatch.setEnabled(true);prevmatch.setEnabled(true);
-            prevpage.setEnabled(true);nextpage.setEnabled(true);
+            prevPage.setEnabled(true);nextPage.setEnabled(true);
             select.setEnabled(true);
 
         }
@@ -393,20 +283,17 @@ public class GuiTest extends JFrame implements MyControlListener{
             current.currentpath=Settings.temppath;
             Settings.currentFile = current;
             Settings.Navigators.add(current);
-            System.out.println("Добавляем навигатор № "+Settings.Navigators.size());
             Settings.currentTab=count;
-            System.out.println(Settings.currentTab+" Добавлена вкладка. Это при каунт=="+count );
             tabbedPane.addTab(name,new JScrollPane((currentEditor)));
             Thread t = new Thread(Settings.currentFile,"new");
             t.start();
             tabbedPane.setSelectedIndex(count);
-            System.out.println("Навигаторов у нас "+Settings.Navigators.size());
 
         }
         tabbedPane.revalidate();
         tabbedPane.repaint();
-        last.revalidate();
-        last.repaint();
+        textBox.revalidate();
+        textBox.repaint();
     }
 
 }

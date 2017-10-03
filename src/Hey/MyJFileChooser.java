@@ -1,11 +1,11 @@
 package Hey;
 
 import javax.swing.*;
-import java.awt.event.*;
 import java.awt.*;
-import java.util.*;
-import java.io.File;
-import javax.swing.JFileChooser;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 
 public class MyJFileChooser extends JPanel
@@ -28,9 +28,6 @@ public class MyJFileChooser extends JPanel
         chooser.setCurrentDirectory(new java.io.File("."));
         chooser.setDialogTitle(choosertitle);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        //
-        // disable the "All files" option.
-        //
         chooser.setAcceptAllFileFilterUsed(false);
         //
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
