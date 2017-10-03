@@ -8,7 +8,7 @@ import java.awt.*;
 import java.io.IOException;
 
 
-public class GuiTest extends JFrame implements MyControlListener{
+public class Gui extends JFrame implements MyControlListener{
 
     MyJFrame mytree = new MyJFrame(Settings.directory);
     private JButton chooserbutton = new JButton("Press");
@@ -29,12 +29,14 @@ public class GuiTest extends JFrame implements MyControlListener{
     Box resultBox = new Box(BoxLayout.X_AXIS);
     private Box mainBox = new Box(BoxLayout.Y_AXIS);
     private Box pathBox = new Box(BoxLayout.X_AXIS);
+    private Box queryBox = new Box(BoxLayout.X_AXIS);
+    private Box buttonsbox = new Box(BoxLayout.X_AXIS);
+
     Container container = this.getContentPane();
 
     DefaultMutableTreeNode root = new DefaultMutableTreeNode("root", true);
     public JTree Mytree = new JTree(root);
     public JPanel treeBox= new JPanel();
-    private Box buttonsbox = new Box(BoxLayout.X_AXIS);
 
 
     String[] items = {
@@ -45,7 +47,7 @@ public class GuiTest extends JFrame implements MyControlListener{
     private JComboBox comboBox = new JComboBox(items);
 
 
-    public GuiTest() throws IOException {
+    public Gui() throws IOException {
 
         super("Find what you want"); //Заголовок окна
         setBounds(100, 100, 900, 600);
@@ -67,7 +69,6 @@ public class GuiTest extends JFrame implements MyControlListener{
         pathBox.add(Box.createHorizontalStrut(15));
         pathBox.add(Box.createVerticalStrut(20));
 
-        Box queryBox = new Box(BoxLayout.X_AXIS);
         inputtext.setMaximumSize(new Dimension(100,20));
         queryBox.add(Box.createHorizontalStrut(15));
         queryBox.add(labeltext);
@@ -142,7 +143,7 @@ public class GuiTest extends JFrame implements MyControlListener{
 
     public static void main(String[] args) throws IOException {
 
-       GuiTest app = new GuiTest();
+       Gui app = new Gui();
        app.setVisible(true);
         MyControl ctl = new MyControl();
        ctl.addListener(app);
